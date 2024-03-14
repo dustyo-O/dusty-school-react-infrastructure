@@ -5,6 +5,7 @@ import { Button, Heading, TextInput, toaster } from 'evergreen-ui';
 import type { User } from '../../types/User';
 import { LoginResponse } from '../../types/api';
 import { cnLoginForm } from './LoginForm.classname';
+import { apiURL } from '../../lib/url';
 
 import './LoginForm.css';
 
@@ -24,7 +25,7 @@ const LoginForm: FC<LoginFormProps> = ({ onLogin }) => {
         event.preventDefault();
         setLoading(true);
 
-        fetch('http://localhost:3000/login?login=' + login)
+        fetch(apiURL('login', { login }))
             .then(response => response.json())
             .then((result: LoginResponse) => {
                 if (result.status === 'ok') {
@@ -54,6 +55,7 @@ const LoginForm: FC<LoginFormProps> = ({ onLogin }) => {
                 value={login}
                 disabled={loading}
                 onChange={handleLoginChange}
+                placeholder="dusty"
             />
             <Button
                 className={cnLoginForm('Button')}

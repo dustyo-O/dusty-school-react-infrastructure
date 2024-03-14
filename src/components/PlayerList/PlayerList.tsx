@@ -1,11 +1,12 @@
 import React, { useEffect, useRef, useState } from 'react';
 import type { FC } from 'react';
+import { Heading, Spinner } from 'evergreen-ui';
 
 import { Player, PlayerListResponse } from '../../types/api';
 import { cnPlayerList } from './PlayerList.classname';
+import { apiURL } from '../../lib/url';
 
 import './PlayerList.css';
-import { Heading, Spinner } from 'evergreen-ui';
 
 type PlayerListProps = {
     token: string;
@@ -21,7 +22,7 @@ const PlayerList: FC<PlayerListProps> = ({ token }) => {
         }
 
         timer.current = setInterval(() => {
-            fetch('http://localhost:3000/player-list?token=' + token)
+            fetch(apiURL('player-list', { token }))
                 .then(response => response.json())
                 .then((result: PlayerListResponse) => {
                     setPlayers(result.list);
@@ -44,3 +45,4 @@ const PlayerList: FC<PlayerListProps> = ({ token }) => {
 }
 
 export { PlayerList };
+

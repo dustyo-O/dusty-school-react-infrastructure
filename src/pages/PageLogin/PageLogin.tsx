@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect } from 'react';
 import type { FC } from 'react';
 import { Heading, Spinner, toaster } from 'evergreen-ui';
 
@@ -6,6 +6,8 @@ import type { User } from '../../types/User';
 import type { PlayerListResponse, PlayerStatusResponse } from '../../types/api';
 import { LoginForm } from '../../components/LoginForm/LoginForm';
 import { cnPageLogin } from './PageLogin.classname';
+import { apiURL } from '../../lib/url';
+import { useBooleanState } from '../../hooks/useBooleanState';
 
 import './PageLogin.css';
 
@@ -14,18 +16,19 @@ type PageLoginProps = {
 };
 
 const PageLogin: FC<PageLoginProps> = ({ onLogin }) => {
-    const [checking, setChecking] = useState(true);
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const [checking, _startChecking, finishChecking] = useBooleanState(true);
 
     useEffect(() => {
         const storageToken = localStorage.getItem('token');
 
         if (!storageToken) {
-            setChecking(false);
+            finishChecking();
 
             return;
         }
 
-        fetch('http://localhost:3000/player-status?token=' + storageToken)
+        fetch(apiURL('player-status', { token: storageToken }))
             .then(response => response.json())
             .then((result: PlayerStatusResponse) => {
                 if (result.status === 'error') {
@@ -34,13 +37,13 @@ const PageLogin: FC<PageLoginProps> = ({ onLogin }) => {
                     return;
                 }
 
-                return fetch('http://localhost:3000/player-list?token=' + storageToken)
+                return fetch(apiURL('player-list', { token: storageToken }))
                     .then(response => response.json())
                     .then((result: PlayerListResponse) => {
                         const player = result.list.find(player => player.you === true);
 
                         if (player === undefined) {
-                            setChecking(false);
+                            finishChecking();
 
                             localStorage.removeItem('token');
                         } else {
@@ -52,8 +55,9 @@ const PageLogin: FC<PageLoginProps> = ({ onLogin }) => {
                 toaster.danger('Ошибка запроса');
             })
             .finally(() => {
-                setChecking(false);
+                finishChecking();
             });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
     return (

@@ -4,8 +4,10 @@ import { Button, toaster } from 'evergreen-ui';
 
 import { PlayerStatusResponse, StartGameResponse } from '../../types/api';
 import { cnStartButton } from './StartButton.classname';
+import { apiURL } from '../../lib/url';
 
 import './StartButton.css';
+
 
 type StartButtonProps = {
     token: string;
@@ -18,7 +20,7 @@ const StartButton: FC<StartButtonProps> = ({ token, onStart }) => {
     const handleStart = () => {
         setLoading(true);
 
-        fetch('http://localhost:3000/start?token=' + token)
+        fetch(apiURL('start', { token }))
             .then(response => response.json())
             .then((result: StartGameResponse) => {
                 if (result.status === 'ok') {
@@ -28,7 +30,7 @@ const StartButton: FC<StartButtonProps> = ({ token, onStart }) => {
                 }
 
                 if (result.message === 'player is already in game') {
-                    fetch('http://localhost:3000/player-status?token=' + token)
+                    fetch(apiURL('player-status', { token }))
                         .then(response => response.json())
                         .then((statusResponse: PlayerStatusResponse) => {
                             if (statusResponse.status === 'ok') {
