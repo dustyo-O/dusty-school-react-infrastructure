@@ -5,6 +5,7 @@ import { Button, Heading, Spinner } from 'evergreen-ui';
 import { Enemy, GameStatusResponse, PlayResponse } from '../../types/api';
 import { GameButtons } from '../../components/GameButtons/GameButtons';
 import { cnPageGame } from './PageGame.classname';
+import { apiURL } from '../../lib/url';
 
 import './PageGame.css';
 
@@ -30,7 +31,7 @@ const PageGame: FC<PageGameProps> = ({ token, gameId, onFinish }) => {
             return;
         }
 
-        fetch(`http://localhost:3000/game-status?token=${token}&id=${gameId}`)
+        fetch(apiURL('game-status', { token, id: gameId }))
             .then(response => response.json())
             .then((result: GameStatusResponse) => {
                 setGameStatus(result['game-status'].status);
@@ -64,7 +65,11 @@ const PageGame: FC<PageGameProps> = ({ token, gameId, onFinish }) => {
     }, [gameStatus]);
 
     const handleMove = (move: 'rock' | 'scissors' | 'paper') => {
-        fetch(`http://localhost:3000/play?token=${token}&id=${gameId}&move=${move}`)
+        if (gameId === undefined) {
+            return;
+        }
+
+        fetch(apiURL('play', { token, id: gameId, move }))
             .then(response => response.json())
             .then((result: PlayResponse) => {
                 if (result.status === 'error') {

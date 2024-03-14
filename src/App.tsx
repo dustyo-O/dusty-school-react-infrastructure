@@ -5,9 +5,10 @@ import { PageLobby } from './pages/PageLobby/PageLobby';
 import type { User } from './types/User';
 import type { PlayerStatusResponse } from './types/api';
 import { cnApp } from './App.classname';
+import { PageGame } from './pages/PageGame/PageGame';
+import { apiURL } from './lib/url';
 
 import './App.css';
-import { PageGame } from './pages/PageGame/PageGame';
 
 const App = () => {
     const [user, setUser] = useState<User | undefined>(undefined);
@@ -25,7 +26,7 @@ const App = () => {
             return;
         }
 
-        fetch('http://localhost:3000/player-status?token=' + user.token)
+        fetch(apiURL('player-status', { token: user.token }))
             .then(response => response.json())
             .then((result: PlayerStatusResponse) => {
                 if (result.status === 'error') {
@@ -69,3 +70,4 @@ const App = () => {
 }
 
 export { App };
+

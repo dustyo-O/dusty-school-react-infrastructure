@@ -1,0 +1,69 @@
+name: NodeJS with Webpack
+
+on:
+  push:
+    branches-ignore:
+      - main
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        node-version: [18.x]
+
+    steps:
+    - uses: actions/checkout@v3
+
+    - name: Use Node.js ${{ matrix.node-version }}
+      uses: actions/setup-node@v3
+      with:
+        node-version: ${{ matrix.node-version }}
+
+    - name: Install
+      run: |
+        npm ci
+
+    - name: Build
+      run: |
+        npm run build
+
+    - name: Unit
+      run: |
+        npm run test
+
+  playwright:
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        node-version: [18.x]
+
+    container: mcr.microsoft.com/playwright:v1.42.1-jammy
+    steps:
+    - uses: actions/checkout@v3
+
+    - name: Use Node.js ${{ matrix.node-version }}
+      uses: actions/setup-node@v3
+      with:
+        node-version: ${{ matrix.node-version }}
+
+    - name: Install
+      run: |
+        ls -la
+        npm ci
+
+    # - name: Install Playwright
+    #   run: |
+    #     ls -la
+    #     npx playwright install --with-deps
+
+    - name: Playwright
+      run: HOME=/root npx playwright test
+    - uses: actions/upload-artifact@v3
+      if: always()
+      with:
+        name: playwright-report
+        path: playwright-report/
+        retention-days: 30
