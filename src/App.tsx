@@ -1,26 +1,71 @@
-import React from 'react';
-import logo from './logo.svg';
-import './App.css';
+import React, { useEffect, useState } from 'react';
 
-function App() {
-  return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.tsx</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
-  );
+import { PageLogin } from './pages/PageLogin/PageLogin';
+import { PageLobby } from './pages/PageLobby/PageLobby';
+import type { User } from './types/User';
+import type { PlayerStatusResponse } from './types/api';
+import { cnApp } from './App.classname';
+
+import './App.css';
+import { PageGame } from './pages/PageGame/PageGame';
+
+const App = () => {
+    const [user, setUser] = useState<User | undefined>(undefined);
+    const [room, setRoom] = useState<'lobby' | 'game' | undefined>(undefined);
+    const [game, setGame] = useState<string | undefined>(undefined);
+
+    const handleLogin = (loggedUser: User) => {
+        localStorage.setItem('token', loggedUser.token);
+
+        setUser(loggedUser);
+    };
+
+    useEffect(() => {
+        if (!user) {
+            return;
+        }
+
+        fetch('http://localhost:3000/player-status?token=' + user.token)
+            .then(response => response.json())
+            .then((result: PlayerStatusResponse) => {
+                if (result.status === 'error') {
+                    localStorage.removeItem('token');
+
+                    setUser(undefined);
+                    setRoom(undefined);
+
+                    return;
+                }
+
+                setRoom(result['player-status'].status);
+
+                if (result['player-status'].status === 'game') {
+                    setGame(result['player-status'].game.id);
+                }
+            });
+    }, [user]);
+
+    const handleGameStart = (gameId: string) => {
+        setRoom('game');
+        setGame(gameId);
+    };
+
+    const handleFinish = () => {
+        setRoom('lobby');
+        setGame(undefined);
+    };
+
+    return (
+        <div className={cnApp()}>
+            {
+                user ?
+                    room === 'lobby' ?
+                        <PageLobby token={user.token} onGameStart={handleGameStart} /> :
+                        <PageGame token={user.token} gameId={game} onFinish={handleFinish} /> :
+                    <PageLogin onLogin={handleLogin} />
+            }
+        </div>
+    );
 }
 
-export default App;
+export { App };
