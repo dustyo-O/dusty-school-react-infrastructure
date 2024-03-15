@@ -1,4 +1,4 @@
-export const API_ORIGIN = 'http://localhost:3000';
+export const API_ORIGIN = process.env.REACT_APP_API_ORIGIN;
 
 export function apiURL(path: string, params: { [key: string]: string } = {}) {
     const urlParams = new URLSearchParams(params);

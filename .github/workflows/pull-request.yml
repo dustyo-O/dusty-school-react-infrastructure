@@ -4,6 +4,8 @@ on:
   push:
     branches-ignore:
       - main
+env:
+  REACT_APP_API_ORIGIN: http://localhost:3000
 
 jobs:
   build:
